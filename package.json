@@ -1,0 +1,41 @@
+{
+  "name": "acronym-manager",
+  "version": "1.0.0",
+  "description": "Portable acronym management system with cloud sync",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "start": "ts-node src/index.ts",
+    "prepare": "npm run build",
+    "example:react": "cd examples/react-app && npm install && npm start"
+  },
+  "dependencies": {
+    "sqlite3": "^5.1.7",
+    "typescript": "^5.3.3",
+    "@google-cloud/storage": "^7.7.0",
+    "aws-sdk": "^2.1550.0",
+    "node-fetch": "^3.3.2",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.19",
+    "@types/jest": "^29.5.12",
+    "@types/uuid": "^9.0.8",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "acronym",
+    "management",
+    "cloud-sync"
+  ],
+  "author": "",
+  "license": "MIT"
+} 
