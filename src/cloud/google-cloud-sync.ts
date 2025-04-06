@@ -53,7 +53,7 @@ export class GoogleCloudSyncProvider implements CloudSyncProvider {
 
     try {
       const [metadata] = await file.getMetadata();
-      return new Date(metadata.updated);
+      return new Date(metadata.updated || Date.now());
     } catch (error) {
       if ((error as any).code === 404) {
         return new Date(0);

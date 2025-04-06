@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { AcronymManager, TextInputOptions, Acronym } from '../core/types';
-import { AcronymTextInput } from '../ui/text-input';
+import { AcronymManager, TextInputOptions, Acronym } from '../types';
 
 interface AcronymInputProps extends Omit<TextInputOptions, 'onAcronymDetected'> {
   acronymManager: AcronymManager;
@@ -21,39 +20,34 @@ export const AcronymInput = ({
   ...options
 }: AcronymInputProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const acronymInputRef = useRef<AcronymTextInput | null>(null);
+  const lastValueRef = useRef<string>('');
 
   useEffect(() => {
-    if (textareaRef.current && !acronymInputRef.current) {
-      acronymInputRef.current = new AcronymTextInput(
-        textareaRef.current,
-        acronymManager,
-        {
-          ...options,
-          onTextChange: (text) => {
-            if (onChange) {
-              onChange(text);
-            }
-          },
-          onAcronymDetected: (acronym) => {
-            if (onAcronymDetected) {
-              onAcronymDetected(acronym);
-            }
-          }
-        }
-      );
-    }
-
-    return () => {
-      acronymInputRef.current = null;
-    };
-  }, [acronymManager, onChange, onAcronymDetected, options]);
-
-  useEffect(() => {
-    if (acronymInputRef.current && value !== undefined) {
-      acronymInputRef.current.setValue(value);
+    if (textareaRef.current && value !== undefined && value !== lastValueRef.current) {
+      textareaRef.current.value = value;
+      lastValueRef.current = value;
     }
   }, [value]);
+
+  const handleInput = async (event: React.FormEvent<HTMLTextAreaElement>) => {
+    const text = event.currentTarget.value;
+    lastValueRef.current = text;
+    
+    if (onChange) {
+      onChange(text);
+    }
+
+    // Check for acronyms in the text
+    const words = text.split(/\s+/);
+    const lastWord = words[words.length - 1];
+
+    if (lastWord && lastWord.length >= 2) {
+      const matches = await acronymManager.searchAcronyms(lastWord);
+      if (matches.length > 0 && onAcronymDetected) {
+        onAcronymDetected(matches[0]);
+      }
+    }
+  };
 
   return (
     <div className="acronym-input-container" style={style}>
@@ -61,6 +55,7 @@ export const AcronymInput = ({
         ref={textareaRef}
         className={className}
         placeholder={options.placeholder}
+        onInput={handleInput}
         style={{
           width: '100%',
           minHeight: '100px',
@@ -82,7 +77,7 @@ export const AcronymInput = ({
           right: 0;
           background: white;
           border: 1px solid #ccc;
-          border-radius: '4px';
+          border-radius: 4px;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           display: none;
           z-index: 1000;
